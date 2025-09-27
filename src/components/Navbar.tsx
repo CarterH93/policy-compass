@@ -39,7 +39,6 @@ export default function Navbar() {
               <div className={styles.userAvatar}>
                 {user.email?.charAt(0).toUpperCase()}
               </div>
-              <span className={styles.userEmail}>{user.email}</span>
             </div>
             {!isPending && (
               <button className={styles.logoutBtn} onClick={logout}>
