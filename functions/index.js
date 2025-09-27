@@ -7,9 +7,10 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-const {setGlobalOptions} = require("firebase-functions");
-const {onRequest} = require("firebase-functions/https");
-const logger = require("firebase-functions/logger");
+// Dependencies for callable functions.
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
+
+const { setGlobalOptions } = require("firebase-functions");
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
@@ -21,12 +22,25 @@ const logger = require("firebase-functions/logger");
 // functions should each use functions.runWith({ maxInstances: 10 }) instead.
 // In the v1 API, each function can only serve one request per container, so
 // this will be the maximum concurrent request count.
-setGlobalOptions({ maxInstances: 10 });
+setGlobalOptions({ maxInstances: 5 });
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+exports.GeminiCall = onCall(
+  {
+    cors: true,
+  },
+  async (request) => {
+    const requestData = request.data.requestData;
+    const requestType = request.data.requestType;
+    // Authentication / user information is automatically added to the request.
+    const auth = request.auth;
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+    if (!auth) {
+      throw new HttpsError(
+        "unauthenticated",
+        "user not authenticated, could not access Gemini API"
+      );
+    }
+
+    return "Test successful";
+  }
+);
