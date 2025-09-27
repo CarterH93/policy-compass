@@ -138,12 +138,12 @@
 
 /* Button styling */
 .inputSection {
-  margin: 40px 0 48px 0;
+  margin: 40px auto 48px auto;
   display: flex;
   flex-direction: column;
   max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
+  padding: 0 20px;
 }
 
 .label {
@@ -234,12 +234,15 @@
 }
 
 .fileInfo {
-  margin-top: 20px;
+  margin: 20px auto 0 auto;
   padding: 20px;
   background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
   border-radius: 12px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  max-width: 800px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .fileInfo p {
@@ -302,25 +305,32 @@
 .buttonGroup {
   display: flex;
   gap: 16px;
-  margin: 48px 0;
+  margin: 48px auto;
   justify-content: center;
   flex-wrap: wrap;
   max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
 button {
   background-color: #3b82f6;
   color: white;
-  padding: 12px 24px;
+  padding: 14px 28px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
-  margin: 10px 0;
+  font-weight: 500;
+  margin: 0;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 button:hover:not(:disabled) {
@@ -1020,29 +1030,23 @@ p[style*="color: red"] {
 }
 
 /* Enhanced Button Controls */
-.buttonGroup {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin: 32px 0;
-}
 
 .primaryBtn {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 16px 32px;
+  padding: 14px 28px;
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-  min-width: 200px;
+  min-width: 140px;
+  justify-content: right;
 }
 
 .primaryBtn:hover:not(:disabled) {
@@ -1061,17 +1065,18 @@ p[style*="color: red"] {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 16px 24px;
+  padding: 14px 28px;
   background: white;
   color: #4a5568;
   border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  font-size: 14px;
+  border-radius: 8px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   min-width: 140px;
+  justify-content: center;
 }
 
 .secondaryBtn:hover:not(:disabled) {
