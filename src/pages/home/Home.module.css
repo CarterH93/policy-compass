@@ -154,6 +154,57 @@
   opacity: 1;
 }
 
+.fileInput {
+  width: 100%;
+  padding: 12px;
+  border: 2px dashed #e1e5e9;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.fileInput:hover {
+  border-color: #007bff;
+  background-color: #f8f9fa;
+}
+
+.fileInput:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.fileInfo {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.fileInfo p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.processing {
+  color: #007bff !important;
+  font-weight: 500;
+}
+
+.success {
+  color: #28a745 !important;
+  font-weight: 500;
+}
+
+.error {
+  color: #dc3545 !important;
+  font-weight: 500;
+}
+
 .buttonGroup {
   display: flex;
   gap: 12px;

@@ -1,0 +1,108 @@
+[debug] [2025-09-27T20:37:42.178Z] ----------------------------------------------------------------------
+[debug] [2025-09-27T20:37:42.180Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\carte\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2025-09-27T20:37:42.181Z] CLI Version:   14.17.0
+[debug] [2025-09-27T20:37:42.181Z] Platform:      win32
+[debug] [2025-09-27T20:37:42.181Z] Node Version:  v22.17.0
+[debug] [2025-09-27T20:37:42.181Z] Time:          Sat Sep 27 2025 16:37:42 GMT-0400 (Eastern Daylight Time)
+[debug] [2025-09-27T20:37:42.181Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-09-27T20:37:42.330Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-09-27T20:37:42.330Z] > authorizing via signed-in user (carterhawkins93@gmail.com)
+[debug] [2025-09-27T20:37:42.330Z] [iam] checking project policy-compass-ce8c0 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-09-27T20:37:42.331Z] Checked if tokens are valid: false, expires at: 1759004983723
+[debug] [2025-09-27T20:37:42.331Z] Checked if tokens are valid: false, expires at: 1759004983723
+[debug] [2025-09-27T20:37:42.331Z] > refreshing access token with scopes: []
+[debug] [2025-09-27T20:37:42.332Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-27T20:37:42.332Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-27T20:37:42.457Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-27T20:37:42.457Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-27T20:37:42.463Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/policy-compass-ce8c0:testIamPermissions [none]
+[debug] [2025-09-27T20:37:42.463Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/policy-compass-ce8c0:testIamPermissions x-goog-quota-user=projects/policy-compass-ce8c0
+[debug] [2025-09-27T20:37:42.463Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/policy-compass-ce8c0:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-09-27T20:37:42.568Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/policy-compass-ce8c0:testIamPermissions 200
+[debug] [2025-09-27T20:37:42.568Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/policy-compass-ce8c0:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-09-27T20:37:42.568Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:42.568Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:42.568Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/policy-compass-ce8c0/serviceAccounts/policy-compass-ce8c0@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2025-09-27T20:37:42.568Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/policy-compass-ce8c0/serviceAccounts/policy-compass-ce8c0@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2025-09-27T20:37:42.678Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/policy-compass-ce8c0/serviceAccounts/policy-compass-ce8c0@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2025-09-27T20:37:42.678Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/policy-compass-ce8c0/serviceAccounts/policy-compass-ce8c0@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2025-09-27T20:37:42.679Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:42.679Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:42.679Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/policy-compass-ce8c0 [none]
+[debug] [2025-09-27T20:37:42.963Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/policy-compass-ce8c0 200
+[debug] [2025-09-27T20:37:42.963Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/policy-compass-ce8c0 {"projectId":"policy-compass-ce8c0","projectNumber":"915077569705","displayName":"Policy-Compass","name":"projects/policy-compass-ce8c0","resources":{"hostingSite":"policy-compass-ce8c0"},"state":"ACTIVE","etag":"1_4dd97e28-b9e4-44a0-8aa9-35932099d383"}
+[info] 
+[info] === Deploying to 'policy-compass-ce8c0'...
+[info] 
+[info] i  deploying firestore, functions, hosting 
+[info] i  firestore: reading indexes from firestore.indexes.json... 
+[info] i  cloud.firestore: checking firestore.rules for compilation errors... 
+[debug] [2025-09-27T20:37:42.967Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:42.967Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:42.967Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/policy-compass-ce8c0:test [none]
+[debug] [2025-09-27T20:37:42.967Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/policy-compass-ce8c0:test [omitted]
+[debug] [2025-09-27T20:37:43.168Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/policy-compass-ce8c0:test 200
+[debug] [2025-09-27T20:37:43.168Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/policy-compass-ce8c0:test {}
+[info] +  cloud.firestore: rules file firestore.rules compiled successfully 
+[debug] [2025-09-27T20:37:43.170Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:43.170Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:43.170Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/policy-compass-ce8c0 [none]
+[debug] [2025-09-27T20:37:43.268Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/policy-compass-ce8c0 200
+[debug] [2025-09-27T20:37:43.268Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/policy-compass-ce8c0 {"projectNumber":"915077569705","projectId":"policy-compass-ce8c0","lifecycleState":"ACTIVE","name":"Policy-Compass","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-09-27T17:45:29.827319Z"}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2025-09-27T20:37:43.271Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:43.271Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:43.271Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/policy-compass-ce8c0/adminSdkConfig [none]
+[debug] [2025-09-27T20:37:43.463Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/policy-compass-ce8c0/adminSdkConfig 200
+[debug] [2025-09-27T20:37:43.463Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/policy-compass-ce8c0/adminSdkConfig {"projectId":"policy-compass-ce8c0","storageBucket":"policy-compass-ce8c0.firebasestorage.app"}
+[debug] [2025-09-27T20:37:43.464Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:43.464Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:43.464Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/policy-compass-ce8c0/configs [none]
+[debug] [2025-09-27T20:37:43.611Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/policy-compass-ce8c0/configs 200
+[debug] [2025-09-27T20:37:43.611Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/policy-compass-ce8c0/configs {"configs":[{"name":"projects/policy-compass-ce8c0/configs/gemini"}]}
+[debug] [2025-09-27T20:37:43.611Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:43.612Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:43.612Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/policy-compass-ce8c0/configs/gemini/variables [none]
+[debug] [2025-09-27T20:37:43.722Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/policy-compass-ce8c0/configs/gemini/variables 200
+[debug] [2025-09-27T20:37:43.722Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/policy-compass-ce8c0/configs/gemini/variables {"variables":[{"name":"projects/policy-compass-ce8c0/configs/gemini/variables/api_key","updateTime":"2025-09-27T19:51:07.397666185Z"}]}
+[debug] [2025-09-27T20:37:43.723Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:43.723Z] Checked if tokens are valid: true, expires at: 1759009061457
+[debug] [2025-09-27T20:37:43.723Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/policy-compass-ce8c0/configs/gemini/variables/api_key [none]
+[debug] [2025-09-27T20:37:43.827Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/policy-compass-ce8c0/configs/gemini/variables/api_key 200
+[debug] [2025-09-27T20:37:43.827Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/policy-compass-ce8c0/configs/gemini/variables/api_key {"name":"projects/policy-compass-ce8c0/configs/gemini/variables/api_key","updateTime":"2025-09-27T19:51:07.397666185Z","text":"AIzaSyBl7YG-WV7TBZssW2VE5JE777d7UBXtAYc"}
+[debug] [2025-09-27T20:37:43.828Z] Validating nodejs source
+[debug] [2025-09-27T20:37:44.387Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^6.0.1"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2025-09-27T20:37:44.387Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[debug] [2025-09-27T20:37:44.388Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-09-27T20:37:44.397Z] Found firebase-functions binary at 'C:\Users\carte\Documents\VTHACKS\policy-compass\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8066
+
+[debug] [2025-09-27T20:37:44.797Z] Got response from /__/functions.yaml {"endpoints":{"GeminiCall":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":5,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","secretEnvironmentVariables":[{"key":"GEMINI_API_KEY"}],"labels":{},"callableTrigger":{},"entryPoint":"GeminiCall"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
