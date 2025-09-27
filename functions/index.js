@@ -161,6 +161,8 @@ Provide a comprehensive compliance analysis with:
    - Effort: Low, Medium, or High
    - Timeline: Specific timeframes (e.g., "30 days", "3 months", "6 months")
    - Controls: List relevant NIST 800-171 and ISO27001 control references
+   For the controls, seperate each control number individually. Do not group them together using commas.
+   Do not do this: ISO27001 A.9.1.1, A.9.2.1, A.9.2.2, A.9.2.3, A.9.2.4, A.9.3.1, A.9.4.1, A.9.4.4, A.13.2.4
 
 Focus on the most critical security controls and provide actionable, specific recommendations that will have the greatest impact on improving compliance.
 
