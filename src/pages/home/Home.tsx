@@ -13,19 +13,7 @@ export default function Home() {
   const [extractedText, setExtractedText] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractionError, setExtractionError] = useState("");
-  const [trendData, setTrendData] = useState([
-    { label: 'Overall Score', value: 75, change: 5, trend: 'up' },
-    { label: 'Critical Items', value: 3, change: -1, trend: 'down' },
-    { label: 'Open Actions', value: 12, change: 0, trend: 'neutral' },
-  ]);
-  const {
-    callGemini,
-    loading,
-    error,
-    response,
-    formattedResponse,
-    resetState,
-  } = useGemini();
+  const { callGemini, loading, error, response, resetState } = useGemini();
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -210,144 +198,135 @@ export default function Home() {
       {response && (
         <div className={styles.responseContainer}>
           <h3>Compliance Analysis Results</h3>
-          
+
           {(() => {
             try {
               const analysisData = response.data?.response;
-              
-              if (analysisData && typeof analysisData === 'object' && analysisData.overallScore !== undefined) {
+
+              if (
+                analysisData &&
+                typeof analysisData === "object" &&
+                analysisData.overallScore !== undefined
+              ) {
                 return (
                   <div className={styles.analysisDashboard}>
                     {/* Score Section */}
                     <div className={styles.scoreSection}>
                       <div className={styles.scoreDisplay}>
-                        <div className={styles.scoreContainer}>
-                          <div className={styles.circularProgress}>
-                            <svg className={styles.progressRing} width="120" height="120">
-                              <circle
-                                className={styles.progressRingBackground}
-                                stroke="#e2e8f0"
-                                strokeWidth="8"
-                                fill="transparent"
-                                r="52"
-                                cx="60"
-                                cy="60"
-                              />
-                              <circle
-                                className={styles.progressRingForeground}
-                                stroke="url(#gradient)"
-                                strokeWidth="8"
-                                fill="transparent"
-                                r="52"
-                                cx="60"
-                                cy="60"
-                                strokeDasharray={`${2 * Math.PI * 52}`}
-                                strokeDashoffset={`${2 * Math.PI * 52 * (1 - analysisData.overallScore / 100)}`}
-                                strokeLinecap="round"
-                              />
-                              <defs>
-                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                  <stop offset="0%" stopColor="#667eea" />
-                                  <stop offset="100%" stopColor="#764ba2" />
-                                </linearGradient>
-                              </defs>
-                            </svg>
-                            <div className={styles.scoreText}>
-                              <span className={styles.scoreNumber}>{analysisData.overallScore}</span>
-                              <span className={styles.scoreMax}>/100</span>
-                            </div>
-                          </div>
+                        <div className={styles.scoreNumber}>
+                          {analysisData.overallScore}/100
                         </div>
-                        <div className={`${styles.complianceLevel} ${styles[analysisData.complianceLevel?.toLowerCase()] || styles.unknown}`}>
-                          {analysisData.complianceLevel} Status
+                        <div
+                          className={`${styles.complianceLevel} ${
+                            styles[
+                              analysisData.complianceLevel?.toLowerCase()
+                            ] || styles.unknown
+                          }`}
+                        >
+                          {analysisData.complianceLevel} Compliance
                         </div>
                         <p className={styles.summary}>{analysisData.summary}</p>
                       </div>
                     </div>
 
                     {/* Action Items Section */}
-                    {analysisData.actionItems && analysisData.actionItems.length > 0 && (
-                      <div className={styles.actionItemsSection}>
-                        <h4 className={styles.sectionTitle}>
-                          Action Items ({analysisData.actionItems.length})
-                        </h4>
-                        <div className={styles.actionItemsList}>
-                          {analysisData.actionItems.map((item: any, index: number) => (
-                            <div key={item.id || index} className={styles.actionItem}>
-                              <div className={styles.actionItemHeader}>
-                                <div className={styles.actionItemTitle}>
-                                  <span className={styles.itemId}>{item.id || `AI-${(index + 1).toString().padStart(3, '0')}`}</span>
-                                  <h3>{item.title || `Action Item ${index + 1}`}</h3>
-                                </div>
-                                <div className={styles.actionItemBadges}>
-                                  <span className={`${styles.priorityBadge} ${styles[item.priority?.toLowerCase()] || styles.unknown}`}>
-                                    {item.priority || 'Unknown'}
-                                  </span>
-                                  <span className={`${styles.effortBadge} ${styles[item.effort?.toLowerCase()] || styles.unknown}`}>
-                                    {item.effort || 'Unknown'} Effort
-                                  </span>
-                                </div>
-                              </div>
-                              
-                              <p className={styles.actionItemDescription}>
-                                {item.description || 'No description provided'}
-                              </p>
-                              
-                              <div className={styles.actionItemFooter}>
-                                <div className={styles.timeline}>
-                                  <strong>Timeline:</strong> {item.timeline || 'TBD'}
-                                </div>
-                                
-                                {item.controls && item.controls.length > 0 && (
-                                  <div className={styles.controls}>
-                                    <strong>Controls:</strong>
-                                    <div className={styles.controlTags}>
-                                      {item.controls.map((control: string, cIndex: number) => (
-                                        <span key={cIndex} className={styles.controlTag}>{control}</span>
-                                      ))}
+                    {analysisData.actionItems &&
+                      analysisData.actionItems.length > 0 && (
+                        <div className={styles.actionItemsSection}>
+                          <h4 className={styles.sectionTitle}>
+                            Action Items ({analysisData.actionItems.length})
+                          </h4>
+                          <div className={styles.actionItemsList}>
+                            {analysisData.actionItems.map(
+                              (item: any, index: number) => (
+                                <div
+                                  key={item.id || index}
+                                  className={styles.actionItem}
+                                >
+                                  <div className={styles.actionItemHeader}>
+                                    <div className={styles.actionItemTitle}>
+                                      <span className={styles.itemId}>
+                                        {item.id ||
+                                          `AI-${(index + 1)
+                                            .toString()
+                                            .padStart(3, "0")}`}
+                                      </span>
+                                      <h5>
+                                        {item.title ||
+                                          `Action Item ${index + 1}`}
+                                      </h5>
+                                    </div>
+                                    <div className={styles.actionItemBadges}>
+                                      <span
+                                        className={`${styles.priorityBadge} ${
+                                          styles[
+                                            item.priority?.toLowerCase()
+                                          ] || styles.unknown
+                                        }`}
+                                      >
+                                        {item.priority || "Unknown"}
+                                      </span>
+                                      <span
+                                        className={`${styles.effortBadge} ${
+                                          styles[item.effort?.toLowerCase()] ||
+                                          styles.unknown
+                                        }`}
+                                      >
+                                        {item.effort || "Unknown"} Effort
+                                      </span>
                                     </div>
                                   </div>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
 
-                    {/* Trend Indicators Section */}
-                    <div className={styles.trendsSection}>
-                      <h4 className={styles.sectionTitle}>Compliance Trends</h4>
-                      <div className={styles.trendsGrid}>
-                        {trendData.map((trend, index) => (
-                          <div key={index} className={styles.trendCard}>
-                            <div className={styles.trendLabel}>{trend.label}</div>
-                            <div className={styles.trendValue}>{trend.value}</div>
-                            <div className={`${styles.trendChange} ${styles[trend.trend]}`}>
-                              {trend.trend === 'up' && (
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
-                              )}
-                              {trend.trend === 'down' && (
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                              )}
-                              {trend.trend === 'neutral' && (
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                              )}
-                              {trend.change !== 0 && <span>{Math.abs(trend.change)}%</span>}
-                            </div>
+                                  <p className={styles.actionItemDescription}>
+                                    {item.description ||
+                                      "No description provided"}
+                                  </p>
+
+                                  <div className={styles.actionItemFooter}>
+                                    <div className={styles.timeline}>
+                                      <strong>Timeline:</strong>{" "}
+                                      {item.timeline || "TBD"}
+                                    </div>
+
+                                    {item.controls &&
+                                      item.controls.length > 0 && (
+                                        <div className={styles.controls}>
+                                          <strong>Controls:</strong>
+                                          <div className={styles.controlTags}>
+                                            {item.controls.map(
+                                              (
+                                                control: string,
+                                                cIndex: number
+                                              ) => (
+                                                <span
+                                                  key={cIndex}
+                                                  className={styles.controlTag}
+                                                >
+                                                  {control}
+                                                </span>
+                                              )
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
+                                  </div>
+                                </div>
+                              )
+                            )}
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                        </div>
+                      )}
                   </div>
                 );
               } else {
-                // Fallback to formatted response for non-JSON or old format
+                // Fallback to raw JSON display for invalid or unexpected format
                 return (
-                  <div
-                    className={styles.formattedResponse}
-                    dangerouslySetInnerHTML={{ __html: formattedResponse }}
-                  />
+                  <div className={styles.fallbackResponse}>
+                    <h4>Analysis Response:</h4>
+                    <pre className={styles.rawResponse}>
+                      {JSON.stringify(analysisData, null, 2)}
+                    </pre>
+                  </div>
                 );
               }
             } catch (error) {
@@ -359,7 +338,7 @@ export default function Home() {
               );
             }
           })()}
-          
+
           <p className={styles.timestamp}>
             Generated: {new Date(response.data?.timestamp).toLocaleString()}
           </p>

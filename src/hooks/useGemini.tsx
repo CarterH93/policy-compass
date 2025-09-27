@@ -13,43 +13,10 @@ interface GeminiResponse {
   error?: string;
 }
 
-// Function to format the response text for better readability
-const formatResponse = (responseText: string): string => {
-  if (!responseText) return "";
-
-  // Clean up the response text
-  let formatted = responseText
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // Bold text
-    .replace(/\*(.*?)\*/g, "<em>$1</em>") // Italic text
-    .replace(/###\s(.*)/g, "<h3>$1</h3>") // H3 headers
-    .replace(/##\s(.*)/g, "<h2>$1</h2>") // H2 headers
-    .replace(/---/g, "<hr />") // Horizontal rules
-    .replace(/\n\n/g, "</p><p>") // Paragraphs
-    .replace(/^(.*)$/gm, (match, p1) => {
-      // Handle bullet points
-      if (p1.trim().startsWith("*") || p1.trim().startsWith("-")) {
-        return `<li>${p1.replace(/^[\s*-]+/, "")}</li>`;
-      }
-      return match;
-    });
-
-  // Wrap consecutive list items in ul tags
-  formatted = formatted.replace(/(<li>.*<\/li>)/g, "<ul>$1</ul>");
-  formatted = formatted.replace(/<\/ul>\s*<ul>/g, "");
-
-  // Add paragraph tags
-  if (!formatted.startsWith("<")) {
-    formatted = "<p>" + formatted + "</p>";
-  }
-
-  return formatted;
-};
-
 export const useGemini = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [response, setResponse] = useState<any>(null);
-  const [formattedResponse, setFormattedResponse] = useState<string>("");
   const { user } = useAuthContext();
 
   const callGemini = async (requestData: any): Promise<GeminiResponse> => {
@@ -72,13 +39,18 @@ export const useGemini = () => {
       } as GeminiRequest);
 
       const responseData = result.data as any;
-      setResponse(responseData);
 
-      // Format the response text if it exists
-      if (responseData?.data?.response) {
-        const formatted = formatResponse(responseData.data.response);
-        setFormattedResponse(formatted);
+      // Validate that we received a valid JSON response
+      if (
+        !responseData?.data?.response ||
+        typeof responseData.data.response !== "object"
+      ) {
+        throw new Error(
+          "Invalid response format: Expected structured JSON object"
+        );
       }
+
+      setResponse(responseData);
 
       setLoading(false);
 
@@ -88,6 +60,10 @@ export const useGemini = () => {
 
       if (error.code === "functions/unauthenticated") {
         errorMessage = "User not authenticated";
+      } else if (error.code === "functions/failed-precondition") {
+        errorMessage = error.message || "API configuration error";
+      } else if (error.code === "functions/resource-exhausted") {
+        errorMessage = "API quota exceeded. Please try again later.";
       } else if (error.message) {
         errorMessage = error.message;
       }
@@ -102,7 +78,6 @@ export const useGemini = () => {
   const resetState = () => {
     setError(null);
     setResponse(null);
-    setFormattedResponse("");
     setLoading(false);
   };
 
@@ -111,7 +86,6 @@ export const useGemini = () => {
     loading,
     error,
     response,
-    formattedResponse,
     resetState,
   };
 };
