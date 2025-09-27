@@ -13,6 +13,11 @@ export default function Home() {
   const [extractedText, setExtractedText] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractionError, setExtractionError] = useState("");
+  const [trendData, setTrendData] = useState([
+    { label: 'Overall Score', value: 75, change: 5, trend: 'up' },
+    { label: 'Critical Items', value: 3, change: -1, trend: 'down' },
+    { label: 'Open Actions', value: 12, change: 0, trend: 'neutral' },
+  ]);
   const {
     callGemini,
     loading,
@@ -160,15 +165,39 @@ export default function Home() {
         <button
           onClick={handleAnalyzeClick}
           disabled={loading || !extractedText.trim() || isExtracting}
+          className={styles.primaryBtn}
         >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"></path>
+            <path d="M9 11V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+            <path d="M9 7h6"></path>
+          </svg>
           {loading ? "Processing..." : "Analyze Document"}
         </button>
         <button
           onClick={handleClear}
           disabled={loading}
-          className={styles.secondaryButton}
+          className={styles.secondaryBtn}
         >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 6h18"></path>
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+          </svg>
           Clear
+        </button>
+        <button
+          onClick={() => window.print()}
+          disabled={loading}
+          className={styles.secondaryBtn}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M6 9H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"></path>
+            <path d="M18 9h2a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-2"></path>
+            <path d="M6 14h12"></path>
+            <path d="M6 18h12"></path>
+          </svg>
+          Export Report
         </button>
       </div>
 
@@ -192,9 +221,45 @@ export default function Home() {
                     {/* Score Section */}
                     <div className={styles.scoreSection}>
                       <div className={styles.scoreDisplay}>
-                        <div className={styles.scoreNumber}>{analysisData.overallScore}/100</div>
+                        <div className={styles.scoreContainer}>
+                          <div className={styles.circularProgress}>
+                            <svg className={styles.progressRing} width="120" height="120">
+                              <circle
+                                className={styles.progressRingBackground}
+                                stroke="#e2e8f0"
+                                strokeWidth="8"
+                                fill="transparent"
+                                r="52"
+                                cx="60"
+                                cy="60"
+                              />
+                              <circle
+                                className={styles.progressRingForeground}
+                                stroke="url(#gradient)"
+                                strokeWidth="8"
+                                fill="transparent"
+                                r="52"
+                                cx="60"
+                                cy="60"
+                                strokeDasharray={`${2 * Math.PI * 52}`}
+                                strokeDashoffset={`${2 * Math.PI * 52 * (1 - analysisData.overallScore / 100)}`}
+                                strokeLinecap="round"
+                              />
+                              <defs>
+                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                  <stop offset="0%" stopColor="#667eea" />
+                                  <stop offset="100%" stopColor="#764ba2" />
+                                </linearGradient>
+                              </defs>
+                            </svg>
+                            <div className={styles.scoreText}>
+                              <span className={styles.scoreNumber}>{analysisData.overallScore}</span>
+                              <span className={styles.scoreMax}>/100</span>
+                            </div>
+                          </div>
+                        </div>
                         <div className={`${styles.complianceLevel} ${styles[analysisData.complianceLevel?.toLowerCase()] || styles.unknown}`}>
-                          {analysisData.complianceLevel} Compliance
+                          {analysisData.complianceLevel} Status
                         </div>
                         <p className={styles.summary}>{analysisData.summary}</p>
                       </div>
@@ -212,7 +277,7 @@ export default function Home() {
                               <div className={styles.actionItemHeader}>
                                 <div className={styles.actionItemTitle}>
                                   <span className={styles.itemId}>{item.id || `AI-${(index + 1).toString().padStart(3, '0')}`}</span>
-                                  <h5>{item.title || `Action Item ${index + 1}`}</h5>
+                                  <h3>{item.title || `Action Item ${index + 1}`}</h3>
                                 </div>
                                 <div className={styles.actionItemBadges}>
                                   <span className={`${styles.priorityBadge} ${styles[item.priority?.toLowerCase()] || styles.unknown}`}>
@@ -249,6 +314,31 @@ export default function Home() {
                         </div>
                       </div>
                     )}
+
+                    {/* Trend Indicators Section */}
+                    <div className={styles.trendsSection}>
+                      <h4 className={styles.sectionTitle}>Compliance Trends</h4>
+                      <div className={styles.trendsGrid}>
+                        {trendData.map((trend, index) => (
+                          <div key={index} className={styles.trendCard}>
+                            <div className={styles.trendLabel}>{trend.label}</div>
+                            <div className={styles.trendValue}>{trend.value}</div>
+                            <div className={`${styles.trendChange} ${styles[trend.trend]}`}>
+                              {trend.trend === 'up' && (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                              )}
+                              {trend.trend === 'down' && (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                              )}
+                              {trend.trend === 'neutral' && (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                              )}
+                              {trend.change !== 0 && <span>{Math.abs(trend.change)}%</span>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 );
               } else {
