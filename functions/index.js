@@ -58,7 +58,7 @@ exports.GeminiCall = onCall(
         model: "gemini-2.5-flash",
       });
 
-      let prompt = `Analyze the following policy document and provide insights: ${requestData}`;
+      let prompt = `Analyze the document based on these standards NIST 800-171 and ISO27001. Here is the document: ${requestData}`;
 
       // Generate content using Gemini
       const result = await model.generateContent(prompt);
