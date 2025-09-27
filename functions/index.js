@@ -55,23 +55,90 @@ exports.GeminiCall = onCall(
 
       // Get the generative model
       const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.5-flash-lite",
       });
 
-      let prompt = `Analyze the document based on these standards NIST 800-171 and ISO27001. Here is the document: ${requestData}`;
+      let prompt = `You are a compliance analyst. Analyze the following policy document against NIST 800-171 and ISO27001 standards.
+
+Return ONLY a valid JSON object with this exact structure:
+{
+  "overallScore": 75,
+  "complianceLevel": "Fair",
+  "summary": "Brief 2-3 sentence summary of overall compliance status",
+  "actionItems": [
+    {
+      "id": "AI-001",
+      "title": "Implement Multi-Factor Authentication",
+      "description": "Deploy MFA for all user accounts accessing sensitive systems",
+      "priority": "High",
+      "effort": "Medium",
+      "timeline": "30 days",
+      "controls": ["NIST-3.5.3", "ISO-27001-A.9.2.3"]
+    }
+  ]
+}
+
+Scoring Guidelines:
+- 90-100: Excellent compliance
+- 80-89: Good compliance with minor gaps
+- 70-79: Fair compliance with moderate gaps
+- 60-69: Poor compliance with significant gaps
+- Below 60: Critical compliance failures
+
+Priority Levels: High, Medium, Low
+Effort Levels: Low, Medium, High
+Timeline: Specific timeframes (e.g., "30 days", "3 months", "6 months")
+
+Focus on the most critical security controls and provide actionable, specific recommendations.
+
+Policy Document:
+${requestData}`;
 
       // Generate content using Gemini
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
 
-      return {
-        success: true,
-        data: {
-          response: text,
-          timestamp: new Date().toISOString(),
-        },
-      };
+      // Clean up the response text to ensure it's valid JSON
+      let cleanText = text;
+      
+      // Remove markdown code blocks if present
+      if (cleanText.includes('```json')) {
+        cleanText = cleanText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      }
+      
+      // Try to parse and validate JSON
+      try {
+        const parsedJson = JSON.parse(cleanText);
+        
+        // Validate required fields
+        if (typeof parsedJson.overallScore !== 'number' || !Array.isArray(parsedJson.actionItems)) {
+          throw new Error('Invalid JSON structure');
+        }
+        
+        return {
+          success: true,
+          data: {
+            response: parsedJson,
+            timestamp: new Date().toISOString(),
+          },
+        };
+      } catch (parseError) {
+        console.warn('Failed to parse Gemini response as JSON:', parseError);
+        // Return a fallback response
+        return {
+          success: true,
+          data: {
+            response: {
+              overallScore: 0,
+              complianceLevel: "Unknown",
+              summary: "Unable to parse analysis results. Please try again.",
+              actionItems: []
+            },
+            timestamp: new Date().toISOString(),
+          },
+        };
+      }
     } catch (error) {
       console.error("Gemini API Error:", error);
 

@@ -180,17 +180,96 @@ export default function Home() {
 
       {response && (
         <div className={styles.responseContainer}>
-          <h3>Analysis Results:</h3>
-          {formattedResponse ? (
-            <div
-              className={styles.formattedResponse}
-              dangerouslySetInnerHTML={{ __html: formattedResponse }}
-            />
-          ) : (
-            <pre className={styles.rawResponse}>
-              {JSON.stringify(response, null, 2)}
-            </pre>
-          )}
+          <h3>Compliance Analysis Results</h3>
+          
+          {(() => {
+            try {
+              const analysisData = response.data?.response;
+              
+              if (analysisData && typeof analysisData === 'object' && analysisData.overallScore !== undefined) {
+                return (
+                  <div className={styles.analysisDashboard}>
+                    {/* Score Section */}
+                    <div className={styles.scoreSection}>
+                      <div className={styles.scoreDisplay}>
+                        <div className={styles.scoreNumber}>{analysisData.overallScore}/100</div>
+                        <div className={`${styles.complianceLevel} ${styles[analysisData.complianceLevel?.toLowerCase()] || styles.unknown}`}>
+                          {analysisData.complianceLevel} Compliance
+                        </div>
+                        <p className={styles.summary}>{analysisData.summary}</p>
+                      </div>
+                    </div>
+
+                    {/* Action Items Section */}
+                    {analysisData.actionItems && analysisData.actionItems.length > 0 && (
+                      <div className={styles.actionItemsSection}>
+                        <h4 className={styles.sectionTitle}>
+                          Action Items ({analysisData.actionItems.length})
+                        </h4>
+                        <div className={styles.actionItemsList}>
+                          {analysisData.actionItems.map((item: any, index: number) => (
+                            <div key={item.id || index} className={styles.actionItem}>
+                              <div className={styles.actionItemHeader}>
+                                <div className={styles.actionItemTitle}>
+                                  <span className={styles.itemId}>{item.id || `AI-${(index + 1).toString().padStart(3, '0')}`}</span>
+                                  <h5>{item.title || `Action Item ${index + 1}`}</h5>
+                                </div>
+                                <div className={styles.actionItemBadges}>
+                                  <span className={`${styles.priorityBadge} ${styles[item.priority?.toLowerCase()] || styles.unknown}`}>
+                                    {item.priority || 'Unknown'}
+                                  </span>
+                                  <span className={`${styles.effortBadge} ${styles[item.effort?.toLowerCase()] || styles.unknown}`}>
+                                    {item.effort || 'Unknown'} Effort
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              <p className={styles.actionItemDescription}>
+                                {item.description || 'No description provided'}
+                              </p>
+                              
+                              <div className={styles.actionItemFooter}>
+                                <div className={styles.timeline}>
+                                  <strong>Timeline:</strong> {item.timeline || 'TBD'}
+                                </div>
+                                
+                                {item.controls && item.controls.length > 0 && (
+                                  <div className={styles.controls}>
+                                    <strong>Controls:</strong>
+                                    <div className={styles.controlTags}>
+                                      {item.controls.map((control: string, cIndex: number) => (
+                                        <span key={cIndex} className={styles.controlTag}>{control}</span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              } else {
+                // Fallback to formatted response for non-JSON or old format
+                return (
+                  <div
+                    className={styles.formattedResponse}
+                    dangerouslySetInnerHTML={{ __html: formattedResponse }}
+                  />
+                );
+              }
+            } catch (error) {
+              // Fallback to raw JSON display if parsing fails
+              return (
+                <pre className={styles.rawResponse}>
+                  {JSON.stringify(response, null, 2)}
+                </pre>
+              );
+            }
+          })()}
+          
           <p className={styles.timestamp}>
             Generated: {new Date(response.data?.timestamp).toLocaleString()}
           </p>
