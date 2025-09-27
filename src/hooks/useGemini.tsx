@@ -62,6 +62,7 @@ export const useGemini = () => {
     setLoading(true);
     setError(null);
     setResponse(null);
+    setFormattedResponse("");
 
     try {
       const functions = getFunctions();
@@ -74,10 +75,21 @@ export const useGemini = () => {
       const responseData = result.data as any;
       setResponse(responseData);
 
-      // Format the response text if it exists
+      // Since we're using structured output, the response is already properly structured JSON
+      // We still maintain formattedResponse for backward compatibility or fallback scenarios
       if (responseData?.data?.response) {
-        const formatted = formatResponse(responseData.data.response);
-        setFormattedResponse(formatted);
+        // If the response is structured JSON, we don't need to format it as HTML
+        if (
+          typeof responseData.data.response === "object" &&
+          responseData.data.response.overallScore !== undefined
+        ) {
+          // Structured response - no formatting needed, component handles display
+          setFormattedResponse("");
+        } else if (typeof responseData.data.response === "string") {
+          // Legacy text response - apply formatting
+          const formatted = formatResponse(responseData.data.response);
+          setFormattedResponse(formatted);
+        }
       }
 
       setLoading(false);
@@ -88,6 +100,10 @@ export const useGemini = () => {
 
       if (error.code === "functions/unauthenticated") {
         errorMessage = "User not authenticated";
+      } else if (error.code === "functions/failed-precondition") {
+        errorMessage = error.message || "API configuration error";
+      } else if (error.code === "functions/resource-exhausted") {
+        errorMessage = "API quota exceeded. Please try again later.";
       } else if (error.message) {
         errorMessage = error.message;
       }
