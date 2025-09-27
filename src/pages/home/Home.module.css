@@ -116,6 +116,50 @@
 }
 
 /* Button styling */
+.inputSection {
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 12px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: #ffffff;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.textarea::placeholder {
+  color: #6c757d;
+  opacity: 1;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0;
+}
+
 button {
   background-color: #007bff;
   color: white;
@@ -135,6 +179,15 @@ button:hover:not(:disabled) {
 button:disabled {
   background-color: #6c757d;
   cursor: not-allowed;
+}
+
+.secondaryButton {
+  background-color: #6c757d !important;
+  color: white;
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background-color: #5a6268 !important;
 }
 
 /* Error styling */
