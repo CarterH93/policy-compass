@@ -4,7 +4,7 @@ import { useAuthContext } from "../hooks/useAuthContext";
 
 //styles & images
 import styles from "./Navbar.module.css";
-import logo from "../assets/logo.svg";
+import logo from "../assets/logo.png";
 
 export default function Navbar() {
   const { logout, isPending } = useLogout();

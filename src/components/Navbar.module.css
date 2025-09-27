@@ -21,7 +21,6 @@
 .navbar .logo img {
   margin-right: 10px;
   vertical-align: middle;
-  filter: invert(25%);
   width: 36px;
   margin-top: -8px;
 }
