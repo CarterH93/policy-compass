@@ -1,0 +1,148 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.container h1 {
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.container p {
+  color: #7f8c8d;
+  margin-bottom: 24px;
+}
+
+.errorMessage {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  border-radius: 4px;
+  border-left: 4px solid #f5c6cb;
+  margin: 10px 0;
+}
+
+.responseContainer {
+  max-width: 800px;
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.responseContainer h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #333;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 8px;
+}
+
+.formattedResponse {
+  line-height: 1.6;
+  color: #444;
+  margin-bottom: 16px;
+}
+
+.formattedResponse h2 {
+  color: #2c3e50;
+  margin: 24px 0 12px 0;
+  font-size: 1.4em;
+  border-bottom: 1px solid #3498db;
+  padding-bottom: 4px;
+}
+
+.formattedResponse h3 {
+  color: #34495e;
+  margin: 20px 0 10px 0;
+  font-size: 1.2em;
+}
+
+.formattedResponse p {
+  margin: 12px 0;
+  text-align: justify;
+}
+
+.formattedResponse strong {
+  color: #2980b9;
+  font-weight: 600;
+}
+
+.formattedResponse em {
+  color: #8e44ad;
+  font-style: italic;
+}
+
+.formattedResponse ul {
+  margin: 12px 0;
+  padding-left: 24px;
+}
+
+.formattedResponse li {
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+.formattedResponse hr {
+  margin: 24px 0;
+  border: none;
+  border-top: 2px solid #ecf0f1;
+}
+
+.rawResponse {
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  padding: 16px;
+  border-radius: 4px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  font-family: "Monaco", "Consolas", monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.timestamp {
+  font-size: 12px;
+  color: #7f8c8d;
+  text-align: right;
+  margin: 8px 0 0 0;
+  font-style: italic;
+  border-top: 1px solid #ecf0f1;
+  padding-top: 8px;
+}
+
+/* Button styling */
+button {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 10px 0;
+  transition: background-color 0.3s ease;
+}
+
+button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Error styling */
+p[style*="color: red"] {
+  background-color: #f8d7da;
+  color: #721c24 !important;
+  padding: 12px;
+  border-radius: 4px;
+  border-left: 4px solid #f5c6cb;
+  margin: 10px 0;
+}
