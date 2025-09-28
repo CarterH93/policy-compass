@@ -13,7 +13,84 @@ export default function Home() {
   const [extractedText, setExtractedText] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractionError, setExtractionError] = useState("");
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [extractionProgress, setExtractionProgress] = useState(0);
+  const [estimatedTime, setEstimatedTime] = useState("");
+  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [fileMetadata, setFileMetadata] = useState<any>(null);
   const { callGemini, loading, error, response, resetState } = useGemini();
+
+  const extractPDFMetadata = async (file: File): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const buffer = e.target?.result as ArrayBuffer;
+          const uint8Array = new Uint8Array(buffer);
+
+          const loadingTask = pdfjsLib.getDocument(uint8Array);
+          const pdf = await loadingTask.promise;
+
+          const metadata = {
+            title: (pdf as any).info?.Title || 'Untitled',
+            author: (pdf as any).info?.Author || 'Unknown',
+            subject: (pdf as any).info?.Subject || '',
+            creator: (pdf as any).info?.Creator || '',
+            producer: (pdf as any).info?.Producer || '',
+            creationDate: (pdf as any).info?.CreationDate ? new Date((pdf as any).info.CreationDate).toLocaleDateString() : 'Unknown',
+            modificationDate: (pdf as any).info?.ModDate ? new Date((pdf as any).info.ModDate).toLocaleDateString() : 'Unknown',
+            pageCount: pdf.numPages,
+            fileSize: file.size,
+            fileSizeFormatted: (file.size / (1024 * 1024)).toFixed(1) + ' MB'
+          };
+
+          resolve(metadata);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = () => reject(new Error("Failed to read file"));
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
+  const generatePDFThumbnail = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const buffer = e.target?.result as ArrayBuffer;
+          const uint8Array = new Uint8Array(buffer);
+
+          const loadingTask = pdfjsLib.getDocument(uint8Array);
+          const pdf = await loadingTask.promise;
+
+          // Get the first page for thumbnail
+          const page = await pdf.getPage(1);
+          const viewport = page.getViewport({ scale: 0.5 });
+          
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+
+          const renderContext = {
+            canvasContext: context!,
+            viewport: viewport,
+            canvas: canvas
+          };
+
+          await page.render(renderContext).promise;
+          const thumbnail = canvas.toDataURL('image/png');
+          resolve(thumbnail);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = () => reject(new Error("Failed to read file"));
+      reader.readAsArrayBuffer(file);
+    });
+  };
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -27,15 +104,31 @@ export default function Home() {
           const pdf = await loadingTask.promise;
 
           let fullText = "";
+          const totalPages = pdf.numPages;
 
-          // Extract text from all pages
-          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          // Extract text from all pages with progress tracking
+          for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
             const page = await pdf.getPage(pageNum);
             const textContent = await page.getTextContent();
             const pageText = textContent.items
               .map((item: any) => item.str)
               .join(" ");
             fullText += pageText + "\n";
+            
+            // Update progress
+            const progress = Math.round((pageNum / totalPages) * 100);
+            setExtractionProgress(progress);
+            
+            // Calculate estimated time remaining
+            const startTime = Date.now();
+            const elapsedTime = (Date.now() - startTime) / 1000;
+            const pagesPerSecond = pageNum / elapsedTime;
+            const remainingPages = totalPages - pageNum;
+            const estimatedSeconds = Math.round(remainingPages / pagesPerSecond);
+            
+            if (estimatedSeconds > 0) {
+              setEstimatedTime(`~${estimatedSeconds}s remaining`);
+            }
           }
 
           resolve(fullText.trim());
@@ -57,26 +150,125 @@ export default function Home() {
       return;
     }
 
+    // File type validation
     if (file.type !== "application/pdf") {
-      setExtractionError("Please select a PDF file.");
+      setExtractionError("❌ Please select a PDF file. Other file types are not supported.");
+      return;
+    }
+
+    // File size validation (10MB limit)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > maxSize) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      setExtractionError(`❌ File too large! Your file is ${fileSizeMB}MB. Maximum size allowed is 10MB.`);
+      return;
+    }
+
+    // File size too small validation (less than 1KB)
+    if (file.size < 1024) {
+      setExtractionError("❌ File appears to be empty or corrupted. Please select a valid PDF file.");
       return;
     }
 
     setSelectedFile(file);
     setExtractionError("");
     setIsExtracting(true);
+    setExtractionProgress(0);
+    setEstimatedTime("");
+    setFilePreview(null);
 
     try {
+      // Extract metadata first
+      const metadata = await extractPDFMetadata(file);
+      setFileMetadata(metadata);
+      
+      // Generate thumbnail
+      const thumbnail = await generatePDFThumbnail(file);
+      setFilePreview(thumbnail);
+      
+      // Then extract text
       const text = await extractTextFromPDF(file);
       setExtractedText(text);
       setIsExtracting(false);
     } catch (error) {
       console.error("PDF extraction error:", error);
       setExtractionError(
-        "Failed to extract text from PDF. Please try another file."
+        "❌ Failed to extract text from PDF. The file may be corrupted or password-protected. Please try another file."
       );
       setExtractedText("");
       setIsExtracting(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      
+      // File type validation
+    if (file.type !== "application/pdf") {
+        setExtractionError("❌ Please select a PDF file. Other file types are not supported.");
+        return;
+      }
+
+      // File size validation (10MB limit)
+      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      if (file.size > maxSize) {
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+        setExtractionError(`❌ File too large! Your file is ${fileSizeMB}MB. Maximum size allowed is 10MB.`);
+        return;
+      }
+
+      // File size too small validation (less than 1KB)
+      if (file.size < 1024) {
+        setExtractionError("❌ File appears to be empty or corrupted. Please select a valid PDF file.");
+      return;
+    }
+
+      setSelectedFile(file);
+      setExtractionError("");
+      setIsExtracting(true);
+      setExtractionProgress(0);
+      setEstimatedTime("");
+      setFilePreview(null);
+
+      try {
+        // Extract metadata first
+        const metadata = await extractPDFMetadata(file);
+        setFileMetadata(metadata);
+        
+        // Generate thumbnail
+        const thumbnail = await generatePDFThumbnail(file);
+        setFilePreview(thumbnail);
+        
+        // Then extract text
+        const text = await extractTextFromPDF(file);
+        setExtractedText(text);
+        setIsExtracting(false);
+      } catch (error) {
+        console.error("PDF extraction error:", error);
+        setExtractionError(
+          "❌ Failed to extract text from PDF. The file may be corrupted or password-protected. Please try another file."
+        );
+        setExtractedText("");
+        setIsExtracting(false);
+      }
     }
   };
 
@@ -101,6 +293,10 @@ export default function Home() {
     setSelectedFile(null);
     setExtractedText("");
     setExtractionError("");
+    setFilePreview(null);
+    setFileMetadata(null);
+    setExtractionProgress(0);
+    setEstimatedTime("");
     resetState();
 
     // Clear the file input
@@ -108,6 +304,21 @@ export default function Home() {
     if (fileInput) {
       fileInput.value = "";
     }
+  };
+
+  const handleReplaceFile = () => {
+    // Reset all file-related states
+    setSelectedFile(null);
+    setExtractedText("");
+    setExtractionError("");
+    setFilePreview(null);
+    setFileMetadata(null);
+    setExtractionProgress(0);
+    setEstimatedTime("");
+    resetState();
+    
+    // Trigger file input click
+    document.getElementById('pdfFile')?.click();
   };
 
   return (
@@ -123,7 +334,13 @@ export default function Home() {
           Upload your PDF policy document to analyze:
         </label>
         
-        <div className={styles.fileUploadArea} onClick={() => document.getElementById('pdfFile')?.click()}>
+        <div 
+          className={`${styles.fileUploadArea} ${isDragOver ? styles.dragOver : ''}`}
+          onClick={() => document.getElementById('pdfFile')?.click()}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
           <svg className={styles.uploadIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="7,10 12,15 17,10"></polyline>
@@ -147,18 +364,72 @@ export default function Home() {
 
         {selectedFile && (
           <div className={styles.fileInfo}>
+            <div className={styles.fileHeader}>
             <p>Selected: {selectedFile.name}</p>
+              {filePreview && (
+                <div className={styles.filePreview}>
+                  <img 
+                    src={filePreview} 
+                    alt="PDF Preview" 
+                    className={styles.thumbnail}
+                  />
+                  <div className={styles.fileDetails}>
+                    <span className={styles.fileType}>PDF Document</span>
+                    <span className={styles.fileSize}>
+                      {fileMetadata?.fileSizeFormatted || (selectedFile.size / (1024 * 1024)).toFixed(1) + ' MB'}
+                    </span>
+                    {fileMetadata && (
+                      <div className={styles.metadataInfo}>
+                        <span className={styles.pageCount}>{fileMetadata.pageCount} pages</span>
+                        {fileMetadata.title !== 'Untitled' && (
+                          <span className={styles.documentTitle}>{fileMetadata.title}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             {isExtracting && (
+              <div className={styles.processingContainer}>
               <p className={styles.processing}>Extracting text from PDF...</p>
+                <div className={styles.progressBar}>
+                  <div 
+                    className={styles.progressFill}
+                    style={{ width: `${extractionProgress}%` }}
+                  ></div>
+                </div>
+                <div className={styles.progressInfo}>
+                  <span className={styles.progressPercentage}>{extractionProgress}%</span>
+                  {estimatedTime && (
+                    <span className={styles.estimatedTime}>{estimatedTime}</span>
+                  )}
+                </div>
+              </div>
             )}
             {extractionError && (
               <p className={styles.error}>{extractionError}</p>
             )}
             {extractedText && !isExtracting && (
+              <div className={styles.fileActions}>
               <p className={styles.success}>
                 ✓ Text extracted successfully ({extractedText.length}{" "}
                 characters)
               </p>
+                <button 
+                  className={styles.replaceButton}
+                  onClick={handleReplaceFile}
+                  title="Replace with a different PDF"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                    <path d="M21 3v5h-5"></path>
+                    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                    <path d="M3 21v-5h5"></path>
+                  </svg>
+                  Replace File
+                </button>
+              </div>
             )}
           </div>
         )}
