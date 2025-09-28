@@ -147,20 +147,22 @@ exports.GeminiCall = onCall(
 SCORING METHODOLOGY:
 Use a balanced, constructive approach that recognizes existing security measures while identifying improvement opportunities. Start with a baseline score and adjust based on findings.
 
-1. Overall Score (0-100) - Use these more lenient ranges:
-   - 85-100: Excellent compliance (comprehensive coverage, well-documented)
-   - 70-84: Good compliance (solid foundation with some gaps)
-   - 55-69: Fair compliance (basic measures in place, needs improvement)
-   - 40-54: Poor compliance (significant gaps, requires attention)
-   - Below 40: Critical compliance failures (major security risks)
+1. Overall Score (0-100) - Use these very generous ranges:
+   - 75-100: Excellent compliance (good security foundation)
+   - 60-74: Good compliance (reasonable security measures)
+   - 45-59: Fair compliance (basic security in place)
+   - 30-44: Poor compliance (needs improvement)
+   - Below 30: Critical compliance failures (major security risks)
 
-2. Scoring Guidelines:
-   - Start with a baseline score of 50-60 for any policy document
-   - Add points for each security control that is adequately addressed
-   - Subtract points only for critical missing controls or major gaps
-   - Recognize partial implementations and give credit for existing measures
-   - Consider the document's scope and intended audience
-   - Be constructive rather than punitive in your assessment
+2. Scoring Guidelines - Be VERY generous:
+   - Start with a baseline score of 70-75 for any policy document
+   - Add 5-10 points for each security control that is mentioned or partially addressed
+   - Add 15-20 points for each security control that is well-documented
+   - Only subtract points for completely missing critical controls (max -10 points per control)
+   - Give full credit for any mention of security measures, even if brief
+   - Consider the document's scope and intended audience - be understanding
+   - Be very constructive and encouraging in your assessment
+   - Remember: most organizations are doing better than they think
 
 3. Compliance Level: Choose from Excellent, Good, Fair, Poor, or Critical based on the score
 
