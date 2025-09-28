@@ -11,6 +11,7 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 
 const { setGlobalOptions } = require("firebase-functions");
+const functions = require("firebase-functions");
 
 // Import Gemini AI SDK
 const { GoogleGenerativeAI } = require("@google/generative-ai");
@@ -332,8 +333,8 @@ exports.CreateJiraTickets = onCall(
       const projectKey = "SCRUM";
       const issueType = "Task";
       
-      const email = process.env.JIRA_EMAIL;
-      const apiToken = process.env.JIRA_API_TOKEN;
+      const email = functions.config().jira.email;
+      const apiToken = functions.config().jira.api_token;
 
       if (!email || !apiToken) {
         throw new HttpsError(
