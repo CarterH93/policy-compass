@@ -5,8 +5,37 @@
   text-align: center;
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   line-height: 1.6;
-  background: #ffffff;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 25%, #f1f5f9 50%, #ffffff 75%, #f8fafc 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
   min-height: calc(100vh - 120px);
+  position: relative;
+}
+
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(245, 158, 11, 0.02) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .container h1 {
@@ -189,17 +218,39 @@
   border-radius: 12px;
   padding: 40px 20px;
   background-color: #f9fafb;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   margin: 20px 0;
   text-align: center;
+  overflow: hidden;
+}
+
+.fileUploadArea::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(59, 130, 246, 0.05) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.fileUploadArea:hover::before {
+  transform: translateX(100%);
 }
 
 .fileUploadArea:hover {
   border-color: #3b82f6;
   background-color: #f0f9ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+}
+
+.fileUploadArea:active {
+  transform: translateY(-2px) scale(0.99);
+  transition: all 0.1s ease;
 }
 
 .fileUploadArea.dragOver {
@@ -213,12 +264,19 @@
   height: 48px;
   margin: 0 auto 16px;
   color: #718096;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
 }
 
 .fileUploadArea:hover .uploadIcon {
   color: #3b82f6;
-  transform: scale(1.1);
+  transform: scale(1.15) rotate(5deg);
+  animation: none;
 }
 
 .uploadText {
@@ -245,6 +303,128 @@
   box-sizing: border-box;
 }
 
+.fileHeader {
+  margin-bottom: 16px;
+}
+
+.filePreview {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.thumbnail {
+  width: 80px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  transition: transform 0.3s ease;
+}
+
+.thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.fileDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.fileType {
+  font-weight: 600;
+  color: #3b82f6;
+  font-size: 14px;
+}
+
+.fileSize {
+  color: #718096;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.metadataInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 8px;
+}
+
+.pageCount {
+  color: #3b82f6;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.documentTitle {
+  color: #4a5568;
+  font-size: 11px;
+  font-weight: 500;
+  font-style: italic;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.replaceButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  color: #4a5568;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.replaceButton:hover {
+  background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+  border-color: #a0aec0;
+  color: #2d3748;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.replaceButton:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.replaceButton svg {
+  flex-shrink: 0;
+}
+
 .fileInfo p {
   margin: 12px 0;
   font-size: 14px;
@@ -253,12 +433,17 @@
   gap: 8px;
 }
 
+.processingContainer {
+  margin: 16px 0;
+}
+
 .processing {
   color: #3b82f6;
   font-weight: 500;
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 12px;
 }
 
 .processing::before {
@@ -269,6 +454,57 @@
   border-top: 2px solid transparent;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.progressFill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.progressInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.progressPercentage {
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.estimatedTime {
+  color: #718096;
+  font-style: italic;
 }
 
 .success {
@@ -289,13 +525,20 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  background: rgba(229, 62, 62, 0.1);
+  padding: 12px 16px;
+  border-radius: 8px;
+  border-left: 4px solid #e53e3e;
+  margin: 8px 0;
+  animation: shake 0.5s ease-in-out;
 }
 
-.error::before {
-  content: '✗';
-  color: #e53e3e;
-  font-weight: bold;
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
+
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
@@ -324,19 +567,41 @@ button {
   font-size: 16px;
   font-weight: 500;
   margin: 0;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
   min-width: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+button:hover::before {
+  left: 100%;
 }
 
 button:hover:not(:disabled) {
   background-color: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  transition: all 0.1s ease;
 }
 
 button:disabled {
@@ -845,6 +1110,32 @@ p[style*="color: red"] {
   .buttonGroup button {
     width: 100%;
     max-width: 300px;
+    justify-content: center;
+    text-align: center;
+    display: flex;
+    align-items: center;
+  }
+  
+  .buttonGroup button span {
+    text-align: center;
+    width: 100%;
+    display: block;
+  }
+  
+  .buttonGroup button svg {
+    flex-shrink: 0;
+  }
+}
+
+/* Force text centering for stacked buttons */
+@media (max-width: 768px) {
+  .buttonGroup button {
+    text-align: center !important;
+    justify-content: center !important;
+  }
+  
+  .buttonGroup button * {
+    text-align: center !important;
   }
   
   .actionItemHeader {
@@ -1046,7 +1337,7 @@ p[style*="color: red"] {
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   min-width: 140px;
-  justify-content: right;
+  justify-content: center;
 }
 
 .primaryBtn:hover:not(:disabled) {
