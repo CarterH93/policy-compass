@@ -333,8 +333,8 @@ exports.CreateJiraTickets = onCall(
       const projectKey = "SCRUM";
       const issueType = "Task";
       
-      const email = functions.config().jira.email;
-      const apiToken = functions.config().jira.api_token;
+      const email = functions.config().jira?.email || process.env.JIRA_EMAIL;
+      const apiToken = functions.config().jira?.api_token || process.env.JIRA_API_TOKEN;
 
       if (!email || !apiToken) {
         throw new HttpsError(
