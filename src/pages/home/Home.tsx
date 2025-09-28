@@ -3,6 +3,7 @@ import styles from "./Home.module.css";
 
 import React, { useState } from "react";
 import { useGemini } from "../../hooks/useGemini";
+import { useJira } from "../../hooks/useJira";
 import * as pdfjsLib from "pdfjs-dist";
 
 // Set up the worker for pdfjs-dist using the local worker file
@@ -14,6 +15,7 @@ export default function Home() {
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractionError, setExtractionError] = useState("");
   const { callGemini, loading, error, response, resetState } = useGemini();
+  const { createJiraTickets, loading: jiraLoading, error: jiraError, response: jiraResponse, resetState: resetJiraState } = useJira();
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -102,11 +104,22 @@ export default function Home() {
     setExtractedText("");
     setExtractionError("");
     resetState();
+    resetJiraState();
 
     // Clear the file input
     const fileInput = document.getElementById("pdfFile") as HTMLInputElement;
     if (fileInput) {
       fileInput.value = "";
+    }
+  };
+
+  const handlePushToJira = async (actionItems: any[]) => {
+    const result = await createJiraTickets(actionItems);
+    
+    if (result.success) {
+      console.log("Jira tickets created:", result.data);
+    } else {
+      console.error("Failed to create Jira tickets:", result.error);
     }
   };
 
@@ -254,9 +267,18 @@ export default function Home() {
                     {analysisData.actionItems &&
                       analysisData.actionItems.length > 0 && (
                         <div className={styles.actionItemsSection}>
-                          <h4 className={styles.sectionTitle}>
-                            Action Items ({analysisData.actionItems.length})
-                          </h4>
+                          <div className={styles.actionItemsHeader}>
+                            <h4 className={styles.sectionTitle}>
+                              Action Items ({analysisData.actionItems.length})
+                            </h4>
+                            <button
+                              className={styles.jiraButton}
+                              onClick={() => handlePushToJira(analysisData.actionItems)}
+                              disabled={jiraLoading}
+                            >
+                              {jiraLoading ? "Creating Tickets..." : "Push to Jira"}
+                            </button>
+                          </div>
                           <div className={styles.actionItemsList}>
                             {analysisData.actionItems.map(
                               (item: any, index: number) => (
@@ -334,9 +356,50 @@ export default function Home() {
                                 </div>
                               )
                             )}
-                          </div>
                         </div>
-                      )}
+                      </div>
+                    )}
+
+                    {/* Jira Integration Status */}
+                    {jiraResponse && (
+                      <div className={styles.jiraStatus}>
+                        {jiraResponse.success ? (
+                          <div className={styles.jiraSuccess}>
+                            <h5>✅ Jira Tickets Created Successfully!</h5>
+                            <p>
+                              Created {jiraResponse.data?.totalCreated} tickets. 
+                              {(jiraResponse.data?.totalErrors || 0) > 0 && 
+                                ` ${jiraResponse.data?.totalErrors} failed.`
+                              }
+                            </p>
+                            {jiraResponse.data?.createdTickets && jiraResponse.data.createdTickets.length > 0 && (
+                              <div className={styles.jiraLinks}>
+                                <strong>Created Tickets:</strong>
+                                <ul>
+                                  {jiraResponse.data.createdTickets.map((ticket, index) => (
+                                    <li key={index}>
+                                      <a 
+                                        href={ticket.jiraUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className={styles.jiraLink}
+                                      >
+                                        {ticket.jiraKey}: {ticket.actionItem.title}
+                                      </a>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className={styles.jiraError}>
+                            <h5>❌ Failed to Create Jira Tickets</h5>
+                            <p>{jiraError}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               } else {
