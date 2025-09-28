@@ -1390,3 +1390,39 @@ p[style*="color: red"] {
 .primaryBtn svg {
   flex-shrink: 0;
 }
+
+/* Analyze Button - Blue styling */
+.analyzeBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: #3b82f6;
+  color: white;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  min-width: 140px;
+  justify-content: center;
+}
+
+.analyzeBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: #2563eb;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+  background: #2563eb;
+}
+
+.analyzeBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.analyzeBtn svg {
+  flex-shrink: 0;
+}

@@ -18,7 +18,33 @@ export default function Home() {
   const [estimatedTime, setEstimatedTime] = useState("");
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [fileMetadata, setFileMetadata] = useState<any>(null);
+  const [browserCompatibility, setBrowserCompatibility] = useState<{
+    dragDrop: boolean;
+    fileReader: boolean;
+    canvas: boolean;
+    pdfjs: boolean;
+  }>({
+    dragDrop: false,
+    fileReader: false,
+    canvas: false,
+    pdfjs: false
+  });
   const { callGemini, loading, error, response, resetState } = useGemini();
+
+  // Check browser compatibility on component mount
+  React.useEffect(() => {
+    const checkBrowserCompatibility = () => {
+      const compatibility = {
+        dragDrop: 'draggable' in document.createElement('div') && 'ondrop' in window,
+        fileReader: typeof FileReader !== 'undefined',
+        canvas: !!document.createElement('canvas').getContext,
+        pdfjs: typeof pdfjsLib !== 'undefined'
+      };
+      setBrowserCompatibility(compatibility);
+    };
+
+    checkBrowserCompatibility();
+  }, []);
 
   const extractPDFMetadata = async (file: File): Promise<any> => {
     return new Promise((resolve, reject) => {
@@ -142,6 +168,7 @@ export default function Home() {
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
     const file = e.target.files?.[0];
     if (!file) {
       setSelectedFile(null);
@@ -150,53 +177,80 @@ export default function Home() {
       return;
     }
 
-    // File type validation
-    if (file.type !== "application/pdf") {
-      setExtractionError("❌ Please select a PDF file. Other file types are not supported.");
-      return;
-    }
+      // Enhanced file validation
+      if (!browserCompatibility.fileReader) {
+        setExtractionError("❌ Your browser doesn't support file reading. Please use a modern browser like Chrome, Firefox, or Safari.");
+        return;
+      }
 
-    // File size validation (10MB limit)
-    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-    if (file.size > maxSize) {
-      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
-      setExtractionError(`❌ File too large! Your file is ${fileSizeMB}MB. Maximum size allowed is 10MB.`);
-      return;
-    }
-
-    // File size too small validation (less than 1KB)
-    if (file.size < 1024) {
-      setExtractionError("❌ File appears to be empty or corrupted. Please select a valid PDF file.");
-      return;
-    }
-
-    setSelectedFile(file);
-    setExtractionError("");
-    setIsExtracting(true);
-    setExtractionProgress(0);
-    setEstimatedTime("");
-    setFilePreview(null);
-
-    try {
-      // Extract metadata first
-      const metadata = await extractPDFMetadata(file);
-      setFileMetadata(metadata);
+      // File type validation with MIME type fallback
+      const isValidPDF = file.type === "application/pdf" || 
+                        file.name.toLowerCase().endsWith('.pdf') ||
+                        file.type === "application/octet-stream";
       
-      // Generate thumbnail
-      const thumbnail = await generatePDFThumbnail(file);
-      setFilePreview(thumbnail);
-      
-      // Then extract text
-      const text = await extractTextFromPDF(file);
-      setExtractedText(text);
-      setIsExtracting(false);
+      if (!isValidPDF) {
+        setExtractionError("❌ Please select a PDF file. Other file types are not supported.");
+        return;
+      }
+
+      // File size validation (10MB limit)
+      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      if (file.size > maxSize) {
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+        setExtractionError(`❌ File too large! Your file is ${fileSizeMB}MB. Maximum size allowed is 10MB.`);
+        return;
+      }
+
+      // File size too small validation (less than 1KB)
+      if (file.size < 1024) {
+        setExtractionError("❌ File appears to be empty or corrupted. Please select a valid PDF file.");
+        return;
+      }
+
+      setSelectedFile(file);
+      setExtractionError("");
+      setIsExtracting(true);
+      setExtractionProgress(0);
+      setEstimatedTime("");
+      setFilePreview(null);
+
+      try {
+        // Extract metadata first (with error handling)
+        let metadata = null;
+        try {
+          metadata = await extractPDFMetadata(file);
+          setFileMetadata(metadata);
+        } catch (metadataError) {
+          console.warn("Metadata extraction failed:", metadataError);
+          // Continue without metadata
+        }
+        
+        // Generate thumbnail (with error handling)
+        try {
+          if (browserCompatibility.canvas) {
+            const thumbnail = await generatePDFThumbnail(file);
+            setFilePreview(thumbnail);
+          }
+        } catch (thumbnailError) {
+          console.warn("Thumbnail generation failed:", thumbnailError);
+          // Continue without thumbnail
+        }
+        
+        // Extract text (critical operation)
+        const text = await extractTextFromPDF(file);
+        setExtractedText(text);
+        setIsExtracting(false);
+      } catch (error) {
+        console.error("PDF extraction error:", error);
+        setExtractionError(
+          "❌ Failed to extract text from PDF. The file may be corrupted or password-protected. Please try another file."
+        );
+        setExtractedText("");
+        setIsExtracting(false);
+      }
     } catch (error) {
-      console.error("PDF extraction error:", error);
-      setExtractionError(
-        "❌ Failed to extract text from PDF. The file may be corrupted or password-protected. Please try another file."
-      );
-      setExtractedText("");
-      setIsExtracting(false);
+      console.error("File handling error:", error);
+      setExtractionError("❌ An unexpected error occurred while processing your file. Please try again.");
     }
   };
 
@@ -241,9 +295,9 @@ export default function Home() {
       return;
     }
 
-      setSelectedFile(file);
-      setExtractionError("");
-      setIsExtracting(true);
+    setSelectedFile(file);
+    setExtractionError("");
+    setIsExtracting(true);
       setExtractionProgress(0);
       setEstimatedTime("");
       setFilePreview(null);
@@ -258,16 +312,16 @@ export default function Home() {
         setFilePreview(thumbnail);
         
         // Then extract text
-        const text = await extractTextFromPDF(file);
-        setExtractedText(text);
-        setIsExtracting(false);
-      } catch (error) {
-        console.error("PDF extraction error:", error);
-        setExtractionError(
+      const text = await extractTextFromPDF(file);
+      setExtractedText(text);
+      setIsExtracting(false);
+    } catch (error) {
+      console.error("PDF extraction error:", error);
+      setExtractionError(
           "❌ Failed to extract text from PDF. The file may be corrupted or password-protected. Please try another file."
-        );
-        setExtractedText("");
-        setIsExtracting(false);
+      );
+      setExtractedText("");
+      setIsExtracting(false);
       }
     }
   };
@@ -321,6 +375,26 @@ export default function Home() {
     document.getElementById('pdfFile')?.click();
   };
 
+  // Check if JavaScript is disabled
+  const [jsEnabled, setJsEnabled] = React.useState(false);
+  
+  React.useEffect(() => {
+    setJsEnabled(true);
+  }, []);
+
+  if (!jsEnabled) {
+  return (
+      <div className={styles.container}>
+        <h1>Policy Compass</h1>
+        <div className={styles.noJsMessage}>
+          <h2>JavaScript Required</h2>
+          <p>This application requires JavaScript to function properly. Please enable JavaScript in your browser and refresh the page.</p>
+          <p>Modern browsers like Chrome, Firefox, Safari, and Edge support all required features.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <h1>Policy Compass</h1>
@@ -328,6 +402,19 @@ export default function Home() {
         Upload or paste your policy document to get AI-powered insights and
         analysis.
       </p>
+        
+        {/* Browser compatibility warnings */}
+        {!browserCompatibility.fileReader && (
+          <div className={styles.compatibilityWarning}>
+            <strong>⚠️ Browser Compatibility Issue:</strong> Your browser doesn't support file reading. Please use a modern browser.
+          </div>
+        )}
+        
+        {!browserCompatibility.dragDrop && (
+          <div className={styles.compatibilityWarning}>
+            <strong>ℹ️ Limited Functionality:</strong> Drag and drop is not supported in your browser. You can still upload files using the file picker.
+          </div>
+        )}
 
       <div className={styles.inputSection}>
         <label htmlFor="pdfFile" className={styles.label}>
@@ -438,8 +525,8 @@ export default function Home() {
       <div className={styles.buttonGroup}>
         <button
           onClick={handleAnalyzeClick}
-          disabled={loading || !extractedText.trim() || isExtracting}
-          className={styles.primaryBtn}
+          disabled={loading || isExtracting}
+          className={styles.analyzeBtn}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"></path>
