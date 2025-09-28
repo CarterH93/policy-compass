@@ -2,6 +2,9 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## View Deployed App
+Interact with the application at this link [https://policy-compass-ce8c0.web.app/](https://policy-compass-ce8c0.web.app/)
+
 ## Available Scripts
 
 In the project directory, you can run:
