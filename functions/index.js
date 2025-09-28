@@ -332,8 +332,8 @@ exports.CreateJiraTickets = onCall(
       const projectKey = "SCRUM";
       const issueType = "Task";
       
-      const email = "pokala.anurag@gmail.com";
-      const apiToken = "ATATT3xFfGF0JSMMGftVymZMxoxeO_hkH42kzrCL2jkS64w1xk6IW0nqT9JpLnlPrTMXuI0tGlfAw4sZ0pKTPGO0jTCc1JpNBSlWKWNRRbgx7s5IpVbeTnrjkiNnIZOJbJXOYTlqwAQBzA9jb7nN0dWdZQEzXhP2KBf0KRcQNuk2RLI6vr4AiP8=459C083A";
+      const email = process.env.JIRA_EMAIL;
+      const apiToken = process.env.JIRA_API_TOKEN;
 
       if (!email || !apiToken) {
         throw new HttpsError(
