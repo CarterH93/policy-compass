@@ -19,6 +19,9 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 // Import axios for HTTP requests
 const axios = require("axios");
 
+// Load environment variables for local development
+require("dotenv").config();
+
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
 // traffic spikes by instead downgrading performance. This limit is a

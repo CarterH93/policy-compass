@@ -11,6 +11,7 @@
     "@types/node": "^16.18.126",
     "@types/react": "^19.1.14",
     "@types/react-dom": "^19.1.9",
+    "dotenv": "^17.2.2",
     "firebase": "^12.3.0",
     "pdfjs-dist": "^5.4.149",
     "react": "^19.1.1",
