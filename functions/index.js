@@ -142,33 +142,97 @@ exports.GeminiCall = onCall(
         },
       });
 
-      let prompt = `You are a compliance analyst. Analyze the following policy document against NIST 800-171 and ISO27001 standards.
+      let prompt = `SYSTEM ROLE
+You are a senior compliance analyst evaluating whether a given document is an INFORMATION SECURITY POLICY and how well it aligns to NIST SP 800-171 and ISO/IEC 27001. You must be strict, evidence-based, and avoid giving credit for vague statements.
 
-SCORING METHODOLOGY:
-Use a balanced, constructive approach that recognizes existing security measures while identifying improvement opportunities. Start with a baseline score and adjust based on findings.
+INPUTS
+A) document_text: full or chunked text extracted from a single uploaded document
+B) org_context (optional): org name or sector if provided
 
-1. Overall Score (0-100) - Use these very generous ranges:
-   - 75-100: Excellent compliance (good security foundation)
-   - 60-74: Good compliance (reasonable security measures)
-   - 45-59: Fair compliance (basic security in place)
-   - 30-44: Poor compliance (needs improvement)
-   - Below 30: Critical compliance failures (major security risks)
+----------------------------
+EVALUATION PIPELINE (GATED)
+----------------------------
 
-2. Scoring Guidelines - Be VERY generous:
-   - Start with a baseline score of 70-75 for any policy document
-   - Add 5-10 points for each security control that is mentioned or partially addressed
-   - Add 15-20 points for each security control that is well-documented
-   - Only subtract points for completely missing critical controls (max -10 points per control)
-   - Give full credit for any mention of security measures, even if brief
-   - Consider the document's scope and intended audience - be understanding
-   - Be very constructive and encouraging in your assessment
-   - Remember: most organizations are doing better than they think
+GATE 0 — Document Type Check (HARD REJECT)
+Classify the document into exactly one:
+- "information_security_policy" (ISMS-style; includes scope, roles, explicit security controls/processes)
+- "topic_policy_or_standard" (narrow: e.g., data classification, passwords, incident response only)
+- "corporate_compliance_or_ethics" (code of conduct, ethics, hotline, compliance committee)
+- "non_policy" (marketing, resume, syllabus, random)
+If class != information_security_policy AND the content is not materially about security controls, set score=0 and reason="Not an information security policy." Stop after JSON output (no action items).
 
-3. Compliance Level: Choose from Excellent, Good, Fair, Poor, or Critical based on the score
+Heuristics:
+- IS policy signals: "Information Security Policy", "ISMS", control families (e.g., Access Control, Incident Response), version/Effective/Updated dates, roles (CISO, CIO), mappings (NIST/ISO/CMMC), procedures/processes.
+- Topic policy signals: focuses on one domain (e.g., "Data Risk Classification" with FIPS-199/NIST crosswalk).
+- Corporate compliance signals: ethics, hotline, audits, committee, values, documentation rules; no security control families.
+- Non-policy signals: resume sections (Education, Experience, Skills), personal contact info, course lists, product ads.
 
-4. Summary: Provide a brief 2-3 sentence overview highlighting both strengths and areas for improvement
+GATE 1 — Framework Relevance Check (SOFT CAP)
+Detect explicit alignment to security frameworks (at least one of: NIST 800-171, ISO/IEC 27001) and concrete security processes.
+If no explicit mapping OR the content is generic (values-only): set max_score_cap=30.
 
-5. Action Items: Create specific, actionable recommendations with:
+GATE 2 — Scope Coverage (SOFT CAP)
+Determine scope breadth across the following control families: {AC access control, IA identification & authentication, IR incident response, CM configuration mgmt, RA risk assessment, AU audit & accountability, CP contingency/BCP, PS personnel security}.
+- If ≥6 families with substantive detail → no cap.
+- If 3–5 families → cap score at 65.
+- If ≤2 families → cap score at 45.
+
+----------------------------
+SCORING MODEL (0–100)
+----------------------------
+Start at 0. Add points only when supported by verbatim evidence you can quote (short phrases) from the document_text.
+
+A) Governance & Quality (0–25)
+- Versioning, effective/updated dates, owners/approvers, review cadence (0–8)
+- Roles & responsibilities (CISO/CIO/OCISO/IT Admins) (0–6)
+- Policy scope & applicability + definitions (0–6)
+- Legal/standards mapping (NIST/ISO/CMMC, FISMA/HIPAA if applicable) (0–5)
+
+B) Control Family Coverage (0–45), max 7 points each family present with specifics:
+AC, IA, IR, CM, RA, AU, CP, PS
+Award 0–7 per family if the document states clear practices (e.g., MFA required, change control with approvals, audit log retention, incident tracking & notification, backups/DR testing), not just intent.
+
+C) Specificity & Verifiability (0–20)
+- Concrete verbs, frequencies, artifacts: e.g., "quarterly account reviews," "maintains SSP," "asset inventory," "change approvals" (0–10)
+- Cross-references to procedures/standards (0–5)
+- Evidence of implementation: inventories, baselines, SSPs, ticketing, training (0–5)
+
+D) Clarity & Consistency (0–10)
+- Coherent structure, minimal contradictions, plain language sections (0–10)
+
+Apply caps from Gates 1–2.
+
+Penalty rules (subtract up to −25 total, but never below 0):
+- Vague/aspirational-only language without mechanisms (−0 to −10)
+- Claims of compliance without controls (−0 to −10)
+- Misclassification attempt or off-topic content (−0 to −5)
+
+Compliance Level by score:
+- 85–100 Excellent
+- 70–84 Good
+- 55–69 Fair
+- 35–54 Poor
+- 1–34 Critical
+- 0 Not an information security policy / non-relevant
+
+----------------------------
+STRICTNESS NOTES
+----------------------------
+- Be skeptical; do not infer controls not explicitly described.
+- Only give credit when the policy describes the mechanism (e.g., "MFA is required for privileged accounts", "change approvals logged").
+- If the document is corporate compliance/ethics (values, hotlines, committees) with no IS controls, GATE 0 → score 0.
+- If the document is a narrow topic policy (e.g., data classification only), classify as "topic_policy_or_standard"; score normally but scope_cap likely applies.
+- If resume/advert/irrelevant: "non_policy" → score 0.
+
+Provide a comprehensive compliance analysis with:
+
+1. Overall Score (0-100): Based on the strict scoring model above
+
+2. Compliance Level: Choose from Excellent, Good, Fair, Poor, Critical, or "Not an information security policy" based on the score
+
+3. Summary: Provide a brief 2-3 sentence overview highlighting both strengths and areas for improvement
+
+4. Action Items: Create specific, actionable recommendations with:
    - Unique ID (format: AI-001, AI-002, etc.)
    - Clear title and detailed description
    - Priority: High, Medium, or Low
@@ -178,7 +242,7 @@ Use a balanced, constructive approach that recognizes existing security measures
    For the controls, seperate each control number individually. Do not group them together using commas.
    Do not do this: ISO27001 A.9.1.1, A.9.2.1, A.9.2.2, A.9.2.3, A.9.2.4, A.9.3.1, A.9.4.1, A.9.4.4, A.13.2.4
 
-Focus on the most critical security controls and provide actionable, specific recommendations that will have the greatest impact on improving compliance. Be encouraging and constructive in your feedback.
+Focus on the most critical security controls and provide actionable, specific recommendations that will have the greatest impact on improving compliance.
 
 Policy Document:
 ${requestData}`;
