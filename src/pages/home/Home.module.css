@@ -1426,3 +1426,128 @@ p[style*="color: red"] {
 .analyzeBtn svg {
   flex-shrink: 0;
 }
+
+/* Jira Integration Styles */
+.actionItemsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.jiraButton {
+  background: #0052cc;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jiraButton:hover:not(:disabled) {
+  background: #0065ff;
+}
+
+.jiraButton:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.jiraButton::before {
+  content: "🎫";
+  font-size: 16px;
+}
+
+.jiraStatus {
+  margin-top: 24px;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.jiraSuccess {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+  padding: 16px;
+  border-radius: 6px;
+}
+
+.jiraSuccess h5 {
+  margin: 0 0 8px 0;
+  color: #155724;
+  font-size: 1.1em;
+}
+
+.jiraSuccess p {
+  margin: 0 0 12px 0;
+  color: #155724;
+}
+
+.jiraLinks {
+  margin-top: 12px;
+}
+
+.jiraLinks strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #155724;
+}
+
+.jiraLinks ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.jiraLinks li {
+  margin: 4px 0;
+}
+
+.jiraLink {
+  color: #0052cc;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.jiraLink:hover {
+  text-decoration: underline;
+}
+
+.jiraError {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  padding: 16px;
+  border-radius: 6px;
+}
+
+.jiraError h5 {
+  margin: 0 0 8px 0;
+  color: #721c24;
+  font-size: 1.1em;
+}
+
+.jiraError p {
+  margin: 0;
+  color: #721c24;
+}
+
+/* Responsive Design for Jira */
+@media (max-width: 768px) {
+  .actionItemsHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .jiraButton {
+    align-self: flex-start;
+  }
+}

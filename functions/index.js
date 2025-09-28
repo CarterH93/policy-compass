@@ -15,6 +15,9 @@ const { setGlobalOptions } = require("firebase-functions");
 // Import Gemini AI SDK
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
+// Import axios for HTTP requests
+const axios = require("axios");
+
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
 // traffic spikes by instead downgrading performance. This limit is a
@@ -223,3 +226,172 @@ ${requestData}`;
     }
   }
 );
+
+// Jira Integration Function
+exports.CreateJiraTickets = onCall(
+  {
+    cors: true,
+  },
+  async (request) => {
+    const { actionItems } = request.data;
+    const auth = request.auth;
+
+    if (!auth) {
+      throw new HttpsError(
+        "unauthenticated",
+        "User not authenticated, could not create Jira tickets"
+      );
+    }
+
+    if (!actionItems || !Array.isArray(actionItems)) {
+      throw new HttpsError(
+        "invalid-argument",
+        "actionItems array is required"
+      );
+    }
+
+    try {
+      const jiraUrl = "https://pokalaanurag.atlassian.net";
+      const projectKey = "SCRUM";
+      const issueType = "Task";
+      
+      const email = "pokala.anurag@gmail.com";
+      const apiToken = "ATATT3xFfGF0JSMMGftVymZMxoxeO_hkH42kzrCL2jkS64w1xk6IW0nqT9JpLnlPrTMXuI0tGlfAw4sZ0pKTPGO0jTCc1JpNBSlWKWNRRbgx7s5IpVbeTnrjkiNnIZOJbJXOYTlqwAQBzA9jb7nN0dWdZQEzXhP2KBf0KRcQNuk2RLI6vr4AiP8=459C083A";
+
+      if (!email || !apiToken) {
+        throw new HttpsError(
+          "failed-precondition",
+          "Jira credentials not configured"
+        );
+      }
+
+      const createdTickets = [];
+      const errors = [];
+
+      // Create tickets for each action item
+      for (const item of actionItems) {
+        try {
+          const ticketData = {
+            fields: {
+              project: {
+                key: projectKey
+              },
+              issuetype: {
+                name: issueType
+              },
+              summary: item.title || `Compliance Action Item: ${item.id}`,
+              description: {
+                type: "doc",
+                version: 1,
+                content: [
+                  {
+                    type: "paragraph",
+                    content: [
+                      {
+                        type: "text",
+                        text: item.description || "No description provided"
+                      }
+                    ]
+                  },
+                  {
+                    type: "paragraph",
+                    content: [
+                      {
+                        type: "text",
+                        text: `Priority: ${item.priority || 'Unknown'}`
+                      }
+                    ]
+                  },
+                  {
+                    type: "paragraph",
+                    content: [
+                      {
+                        type: "text",
+                        text: `Effort: ${item.effort || 'Unknown'}`
+                      }
+                    ]
+                  },
+                  {
+                    type: "paragraph",
+                    content: [
+                      {
+                        type: "text",
+                        text: `Timeline: ${item.timeline || 'TBD'}`
+                      }
+                    ]
+                  }
+                ]
+              },
+              priority: {
+                name: mapPriorityToJira(item.priority)
+              },
+              labels: [
+                "compliance",
+                "policy-compass",
+                `priority-${(item.priority || 'unknown').toLowerCase()}`
+              ]
+            }
+          };
+
+          // Add controls as labels if available
+          if (item.controls && Array.isArray(item.controls)) {
+            item.controls.forEach(control => {
+              ticketData.fields.labels.push(`control-${control.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`);
+            });
+          }
+
+          const response = await axios.post(
+            `${jiraUrl}/rest/api/3/issue`,
+            ticketData,
+            {
+              headers: {
+                'Authorization': `Basic ${Buffer.from(`${email}:${apiToken}`).toString('base64')}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+
+          createdTickets.push({
+            jiraKey: response.data.key,
+            jiraUrl: `${jiraUrl}/browse/${response.data.key}`,
+            actionItem: item
+          });
+
+        } catch (error) {
+          console.error(`Failed to create ticket for action item ${item.id}:`, error.response?.data || error.message);
+          errors.push({
+            actionItem: item,
+            error: error.response?.data?.errorMessages?.[0] || error.message
+          });
+        }
+      }
+
+      return {
+        success: true,
+        data: {
+          createdTickets,
+          errors,
+          totalCreated: createdTickets.length,
+          totalErrors: errors.length
+        }
+      };
+
+    } catch (error) {
+      console.error("Jira API Error:", error);
+      throw new HttpsError(
+        "internal",
+        `Failed to create Jira tickets: ${error.message}`
+      );
+    }
+  }
+);
+
+// Helper function to map priority levels to Jira priorities
+function mapPriorityToJira(priority) {
+  const priorityMap = {
+    'High': 'High',
+    'Medium': 'Medium', 
+    'Low': 'Low'
+  };
+  return priorityMap[priority] || 'Medium';
+}
