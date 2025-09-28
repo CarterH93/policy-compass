@@ -144,20 +144,29 @@ exports.GeminiCall = onCall(
 
       let prompt = `You are a compliance analyst. Analyze the following policy document against NIST 800-171 and ISO27001 standards.
 
-Provide a comprehensive compliance analysis with:
+SCORING METHODOLOGY:
+Use a balanced, constructive approach that recognizes existing security measures while identifying improvement opportunities. Start with a baseline score and adjust based on findings.
 
-1. Overall Score (0-100):
-   - 90-100: Excellent compliance
-   - 80-89: Good compliance with minor gaps
-   - 70-79: Fair compliance with moderate gaps
-   - 60-69: Poor compliance with significant gaps
-   - Below 60: Critical compliance failures
+1. Overall Score (0-100) - Use these more lenient ranges:
+   - 85-100: Excellent compliance (comprehensive coverage, well-documented)
+   - 70-84: Good compliance (solid foundation with some gaps)
+   - 55-69: Fair compliance (basic measures in place, needs improvement)
+   - 40-54: Poor compliance (significant gaps, requires attention)
+   - Below 40: Critical compliance failures (major security risks)
 
-2. Compliance Level: Choose from Excellent, Good, Fair, Poor, or Critical based on the score
+2. Scoring Guidelines:
+   - Start with a baseline score of 50-60 for any policy document
+   - Add points for each security control that is adequately addressed
+   - Subtract points only for critical missing controls or major gaps
+   - Recognize partial implementations and give credit for existing measures
+   - Consider the document's scope and intended audience
+   - Be constructive rather than punitive in your assessment
 
-3. Summary: Provide a brief 2-3 sentence overview of the overall compliance status
+3. Compliance Level: Choose from Excellent, Good, Fair, Poor, or Critical based on the score
 
-4. Action Items: Create specific, actionable recommendations with:
+4. Summary: Provide a brief 2-3 sentence overview highlighting both strengths and areas for improvement
+
+5. Action Items: Create specific, actionable recommendations with:
    - Unique ID (format: AI-001, AI-002, etc.)
    - Clear title and detailed description
    - Priority: High, Medium, or Low
@@ -167,7 +176,7 @@ Provide a comprehensive compliance analysis with:
    For the controls, seperate each control number individually. Do not group them together using commas.
    Do not do this: ISO27001 A.9.1.1, A.9.2.1, A.9.2.2, A.9.2.3, A.9.2.4, A.9.3.1, A.9.4.1, A.9.4.4, A.13.2.4
 
-Focus on the most critical security controls and provide actionable, specific recommendations that will have the greatest impact on improving compliance.
+Focus on the most critical security controls and provide actionable, specific recommendations that will have the greatest impact on improving compliance. Be encouraging and constructive in your feedback.
 
 Policy Document:
 ${requestData}`;
